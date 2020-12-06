@@ -1,6 +1,6 @@
 # vs-bem-generate README
 
-This is the README for your extension "vs-bem-generate". After writing up a brief description, we recommend including the following sections.
+This is the README for extension "vs-bem-generate". After writing up a brief description, we recommend including the following sections.
 
 ## Features
 
