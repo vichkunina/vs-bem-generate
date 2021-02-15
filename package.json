@@ -52,6 +52,6 @@
 		"vscode-test": "^1.4.0"
 	},
 	"dependencies": {
-		"bemg": "1.1.0"
+		"bemg": "1.2.0"
 	}
 }
