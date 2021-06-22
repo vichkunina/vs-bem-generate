@@ -2,7 +2,7 @@
 	"name": "vs-bem-generate",
 	"displayName": "vs-bem-generate",
 	"description": "Plugin for generating BEM-files",
-	"version": "0.7.0",
+	"version": "0.9.0",
 	"icon": "images/icon.png",
 	"engines": {
 		"vscode": "^1.51.0"
