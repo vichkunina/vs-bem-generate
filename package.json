@@ -2,7 +2,7 @@
 	"name": "vs-bem-generate",
 	"displayName": "vs-bem-generate",
 	"description": "Plugin for generating BEM-files",
-	"version": "0.9.0",
+	"version": "0.10.0",
 	"icon": "images/icon.png",
 	"engines": {
 		"vscode": "^1.51.0"
@@ -13,22 +13,27 @@
 	},
 	"publisher": "vichkunina",
 	"categories": [
+		"Snippets",
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:vs-bem-generate.bemGenerate",
-		"onCommand:vs-bem-generate.bemInit"
+		"*"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
 				"command": "vs-bem-generate.bemGenerate",
-				"title": "Bem generate"
+				"title": "Bem generate",
+				"when": "resourceScheme == file"
 			},
 			{
 				"command": "vs-bem-generate.bemInit",
 				"title": "Bem init"
+			},
+			{
+				"command": "vs-bem-generate.bemInsertSnippet",
+				"title": "Bem insert snippet"
 			}
 		],
 		"menus": {
@@ -49,7 +54,7 @@
 		"test": "node ./out/test/runTest.js"
 	},
 	"devDependencies": {
-		"@types/vscode": "^1.51.0",
+		"@types/vscode": "^1.60.0",
 		"@types/glob": "^7.1.3",
 		"@types/mocha": "^8.0.0",
 		"@types/node": "^12.11.7",
