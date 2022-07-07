@@ -68,6 +68,6 @@
 	},
 	"dependencies": {
 		"bem-naming": "1.0.1",
-		"bemg": "2.0.0"
+		"bemg": "2.0.3"
 	}
 }
