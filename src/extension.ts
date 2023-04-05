@@ -5,13 +5,14 @@ import * as vscode from 'vscode';
 import { LANGUAGES } from './constants';
 import { Snippet } from './types';
 
-const Write = require('bemg/lib/generate/Write');
+const bemGenerate = require('bemg/lib/generate');
 const TaskInit = require('bemg/lib/TaskInit');
 const getConfigPaths = require('bemg/lib/getConfigPaths');
 const { join, resolve } = require("path");
 const bemNaming = require('bem-naming');
 const getBemRoot = require('bemg/lib/generate/getBemRoot');
 const getBemStringByPath = require('bemg/lib/generate/getBemStringByPath');
+const getTemplatesPaths = require('bemg/lib/templates/getTemplatesPaths');
 
 export function activate(context: vscode.ExtensionContext) {
     const init = vscode.commands.registerCommand('vs-bem-generate.bemInit',
@@ -24,7 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
 
                 vscode.window.showInformationMessage("BEMG initialized successfully.");
             } catch (error) {
-                vscode.window.showErrorMessage(error.message);
+                vscode.window.showErrorMessage((error as Error).message);
             }
         });
 
@@ -33,25 +34,21 @@ export function activate(context: vscode.ExtensionContext) {
 
             if (!uri?.path) { return; };
 
-            const { configPath, templatesPath } = getConfigPaths(uri.path);
-            const bemgConfig = JSON.parse(readFileSync(configPath, { encoding: 'utf8' }));
-
             const stats = lstatSync(uri.path);
             const directoryPath = stats.isDirectory() ? uri.path : dirname(uri.path);
 
-            const bemString = getBemStringByPath(directoryPath, bemgConfig.naming);
-
-            const bemgWrite = new Write(
-                getBemRoot(
-                    directoryPath,
-                    bemNaming.typeOf(bemString)
-                ),
-                bemgConfig,
+            const {
+                configPath,
                 templatesPath
-            );
+            } = getConfigPaths(uri.path);
 
-            const bemgTemplates = bemgWrite._templates;
-            const bemgAlliases: { [key: string]: string } = bemgWrite._config.aliases;
+
+            const bemgTemplates = getTemplatesPaths(templatesPath);
+            const bemgConfig = JSON.parse(readFileSync(configPath, { encoding: 'utf8' }));
+            const bemString = getBemStringByPath(directoryPath, bemgConfig.naming);
+            const bemgAliases: { [key: string]: string } = bemgConfig.aliases || {};
+            
+            
 
             let selectedTypes: readonly vscode.QuickPickItem[] = [];
 
@@ -65,9 +62,9 @@ export function activate(context: vscode.ExtensionContext) {
                 const bemType = bemNaming.typeOf(bemString + item);
                 bemgTemplatesNames.forEach(type => {
                     // проверяем, доступен ли шаблон для типа сущности
-                    if (bemgTemplates[bemgAlliases[type] ?? type]?.[bemType]) {
+                    if (bemgTemplates[bemgAliases[type] ?? type]?.[bemType]) {
                         // добавляем в опции алиас или название шаблона
-                        availableTypes.push(Object.entries(bemgAlliases).find(([_key, value]) => value === type)?.[0] ?? type);
+                        availableTypes.push(Object.entries(bemgAliases).find(([_key, value]) => value === type)?.[0] ?? type);
                     }
                 });
             });
@@ -104,10 +101,13 @@ export function activate(context: vscode.ExtensionContext) {
                 }
 
                 try {
-                    const items = itemsInput.split(/[ ,]+/).map(item => bemString + item);
-                    items.forEach(item => bemgWrite.write(item, selectedTypes.map(item => item.label)));
+                    bemGenerate({
+                        targetPath: directoryPath,
+                        types: selectedTypes.map(item => item.label),
+                        items: itemsInput.split(/[ ,]+/)
+                    });
                 } catch (error) {
-                    vscode.window.showErrorMessage(error.message);
+                    vscode.window.showErrorMessage((error as Error).message);
                 }
             });
             typesQuickPick.onDidHide(() => typesQuickPick.dispose());
